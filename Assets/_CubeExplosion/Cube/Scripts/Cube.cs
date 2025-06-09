@@ -19,7 +19,7 @@ public class Cube : MonoBehaviour
     [SerializeField] private float _explosionRaduis = 10000;
     [SerializeField] private ParticleSystem _explosionEffect;
     [SerializeField] private AudioSource _explosionAudioSource;
-
+    
     private Rigidbody _rigidbody;
     private Collider _collider;
     private MeshRenderer _meshRederer;
@@ -38,14 +38,15 @@ public class Cube : MonoBehaviour
         _meshRederer = GetComponent<MeshRenderer>();
     }
 
-    public void Initialize(float devideChance, Vector3 scale, Vector3 createrTransform, float mass, float particleSize, float particleSpeed, float constForceY, float explosionForce)
+    public void Initialize(float devideChance, Vector3 scale, Vector3 createrTransform, float mass, float particleSize,
+        float particleSpeed, float constForceY, float explosionForce)
     {
         _devideChance = devideChance;
         transform.localScale = scale;
         _rigidbody.mass = mass;
         _explosionEffect.startSize = particleSize;
         _explosionEffect.startSpeed = particleSpeed;
-        _constantForce.force = new Vector3(0, constForceY, 0); 
+        _constantForce.force = new Vector3(0, constForceY, 0);
         _explosionForce = explosionForce;
 
         _rigidbody.constraints = RigidbodyConstraints.None;
@@ -65,7 +66,7 @@ public class Cube : MonoBehaviour
         }
         else
         {
-            Destroy(gameObject);
+            Detonate();
         }
     }
 
@@ -83,16 +84,43 @@ public class Cube : MonoBehaviour
 
         for (int i = 0; i < countCubes; i++)
         {
-            Cube cube = Instantiate(_cubePrefab, GetCubeRandomPosition(transform.position, -0.3f, 0.3f), Quaternion.identity);
+            Cube cube = Instantiate(_cubePrefab, GetCubeRandomPosition(transform.position, -0.3f, 0.3f),
+                Quaternion.identity);
             cube.Initialize(_devideChance * DevideChanceCoefficient,
                 transform.localScale * ScaleCoefficient,
                 transform.position,
-                _rigidbody.mass * MassCoefficient, 
+                _rigidbody.mass * MassCoefficient,
                 _explosionEffect.startSize * ParticleSizeCoefficient,
                 _explosionEffect.startSpeed * ParticleSpeedCoefficient,
                 _constantForce.force.y * ConstantForceCoefficient,
                 _explosionForce * ExplosionForceCoefficient);
         }
+
+        Destroy(gameObject, _destroyDelay);
+    }
+
+    private void Detonate()
+    {
+        Debug.Log(gameObject.layer);
+        Collider[] colliders = Physics.OverlapSphere(transform.position, _explosionRaduis, 1 << gameObject.layer);
+
+        float distanceCoefficient = 5f;
+        
+        foreach (Collider collider in colliders)
+        {
+            if (collider.gameObject != gameObject && collider.TryGetComponent<Rigidbody>(out var cubeRigidbody))
+            {
+                float distance = Vector3.Distance(transform.position, collider.transform.position);
+                cubeRigidbody.AddExplosionForce(_explosionForce / (distance / distanceCoefficient), transform.position, _explosionRaduis);
+            }
+        }
+        
+        _rigidbody.constraints = RigidbodyConstraints.FreezeAll;
+        
+        _collider.enabled = false;
+        _explosionEffect.Play();
+        _meshRederer.enabled = false;
+        _explosionAudioSource.Play();
 
         Destroy(gameObject, _destroyDelay);
     }
