@@ -1,15 +1,15 @@
 using System;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class MouseClickRaycast : UserInput
 {
     [SerializeField] private LayerMask _rayHitLayerMask;
 
-    public override event Action<Cube> OnCubeClick;
+    public override event Action<Cube> CubeClicked;
 
     private Input _input;
-    
+    private float _rayDistance = 1000f;
+
     public void Awake()
     {
         _input = new Input();
@@ -31,13 +31,13 @@ public class MouseClickRaycast : UserInput
     {
         Ray ray = Camera.main.ScreenPointToRay(UnityEngine.Input.mousePosition);
 
-        if (Physics.Raycast(ray, out RaycastHit hit, 1000, _rayHitLayerMask))
+        if (Physics.Raycast(ray, out RaycastHit hit, _rayDistance, _rayHitLayerMask))
         {
             Cube cube = hit.transform.GetComponent<Cube>();
 
             Debug.Log($"Click on {hit.transform.gameObject.name}\nGeneration = {cube.Generation}\n");
 
-            OnCubeClick?.Invoke(cube);
+            CubeClicked?.Invoke(cube);
         }
     }
 

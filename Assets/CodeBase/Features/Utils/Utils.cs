@@ -4,6 +4,8 @@ namespace Features.Utils
 {
     public static class Utils
     {
+        private const int SquarePower = 2;
+
         public static class Randomizer
         {
             public static bool TryChance(float positiveChance, float maxChance = 100)
@@ -41,8 +43,8 @@ namespace Features.Utils
             public static float LinearDecayForDistance(float maxValue, float value, float distance)
             {
                 float result = (-value * maxValue * distance - 
-                    value * maxValue + maxValue * Mathf.Pow(distance, 2) + 
-                    maxValue*distance) / Mathf.Pow(distance, 2);
+                    value * maxValue + maxValue * Mathf.Pow(distance, SquarePower) + 
+                    maxValue*distance) / Mathf.Pow(distance, SquarePower);
 
                 return result;
             }

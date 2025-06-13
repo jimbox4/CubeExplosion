@@ -47,13 +47,13 @@ public class CubeHandler : IInitializable, IDisposable
 
     public void Initialize()
     {
-        _userInput.OnCubeClick += MakeCubeAction;
+        _userInput.CubeClicked += OnCubeClicked;
 
         Cube instance = _spawner.Spawn(_cubePrefab, _spawnPoint.GetPosition());
         InitializeCube(instance, instance.Generation);
     }
 
-    private void MakeCubeAction(Cube cube)
+    private void OnCubeClicked(Cube cube)
     {
         float currentDevideChance = Utils.Math.ExponentialDecay(BaseDevideChance,DevideChanceCoefficient, cube.Generation);
 
@@ -132,6 +132,6 @@ public class CubeHandler : IInitializable, IDisposable
 
     public void Dispose()
     {
-        _userInput.OnCubeClick -= MakeCubeAction;
+        _userInput.CubeClicked -= OnCubeClicked;
     }
 }
