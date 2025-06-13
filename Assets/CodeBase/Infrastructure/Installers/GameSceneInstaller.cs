@@ -20,6 +20,11 @@ public class GameSceneInstaller : MonoInstaller
 
     private void BindInput()
     {
+        //UserInput userInput = Container
+        //    .InstantiatePrefabForComponent<UserInput>(_userInput, Vector3.zero, Quaternion.identity, null);
+
+        //Container.Bind<UserInput>().FromInstance(userInput).AsSingle();
+
         Container
             .Bind<UserInput>()
             .FromComponentsInNewPrefab(_userInput)
